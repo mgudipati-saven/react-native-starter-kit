@@ -109,7 +109,7 @@ export default class Login extends Component {
   }
 
   facebookLogin = async () => {
-    // this.setState({ showSpinner: true })
+    this.setState({ showSpinner: true })
 
     try {
       // facebook auth
