@@ -2,6 +2,9 @@ import Expo from 'expo'
 import React, { Component } from 'react'
 import { View, StyleSheet, ActivityIndicator, SafeAreaView } from 'react-native'
 import { Button, Icon, Text } from 'native-base'
+import axios from 'axios'
+import firebase from 'firebase'
+import { NavigationActions } from 'react-navigation'
 
 const styles = StyleSheet.create({
   container: {
@@ -9,7 +12,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  fbButton: {
+  facebookButton: {
     marginBottom: 10,
     alignSelf: 'stretch',
     justifyContent: 'flex-start',
@@ -49,7 +52,33 @@ const styles = StyleSheet.create({
 
 export default class Login extends Component {
   state = {
-    showSpinner: false,
+    showSpinner: true,
+  }
+
+  componentDidMount() {
+    // firebase.auth().signOut()
+    firebase.auth().onAuthStateChanged((auth) => {
+      if (auth) {
+        this.firebaseRef = firebase.database().ref('users')
+        this.firebaseRef.child(auth.uid).on('value', (snap) => {
+          const user = snap.val()
+          if (user != null) {
+            this.firebaseRef.child(auth.uid).off('value')
+            this.showProfile(user)
+          }
+        })
+      } else {
+        this.setState({ showSpinner: false })
+      }
+    })
+  }
+
+  showProfile = (user) => {
+    const resetAction = NavigationActions.reset({
+      index: 0,
+      actions: [NavigationActions.navigate({ routeName: 'Profile', params: { user } })],
+    })
+    this.props.navigation.dispatch(resetAction)
   }
 
   googleLogin = async () => {
@@ -79,21 +108,42 @@ export default class Login extends Component {
     }
   }
 
-  fbLogin = async () => {
+  facebookLogin = async () => {
     // this.setState({ showSpinner: true })
-    const APP_ID = '246347972570206'
-    const options = {
-      permissions: ['public_profile', 'user_birthday', 'user_work_history', 'email'],
-    }
-    const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(APP_ID, options)
-    if (type === 'success') {
-      console.log(token)
-      // const fields = ['id', 'first_name', 'last_name', 'gender', 'birthday', 'work']
-      // const response = await fetch(`https://graph.facebook.com/me?fields=${fields.toString()}&access_token=${token}`)
-      const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`)
-      console.log(await response.json())
-    } else {
-      console.log(type)
+
+    try {
+      // facebook auth
+      const APP_ID = '246347972570206'
+      const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(APP_ID, {
+        permissions: ['public_profile', 'user_birthday', 'user_work_history', 'email'],
+      })
+
+      if (type === 'success') {
+        const { data } = await axios.get('https://graph.facebook.com/me', {
+          params: {
+            fields: 'id,first_name,last_name,gender,birthday,work',
+            access_token: token,
+          },
+        })
+
+        // firebase auth
+        const credential = firebase.auth.FacebookAuthProvider.credential(token)
+        const { uid } = await firebase.auth().signInWithCredential(credential)
+
+        // create firebase user
+        const defaults = {
+          uid,
+        }
+        firebase
+          .database()
+          .ref('users')
+          .child(uid)
+          .update({ ...data, ...defaults })
+      } else {
+        console.log('cancelled')
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -105,7 +155,7 @@ export default class Login extends Component {
             <ActivityIndicator animating={this.state.showSpinner} />
           ) : (
             <View>
-              <Button style={styles.fbButton} iconLeft onPress={this.fbLogin}>
+              <Button style={styles.facebookButton} iconLeft onPress={this.facebookLogin}>
                 <Icon name="logo-facebook" />
                 <Text>Sign in with Facebook</Text>
               </Button>

@@ -1,6 +1,7 @@
 import { StackNavigator } from 'react-navigation'
 import * as firebase from 'firebase'
 import Login from './screens/login'
+import Profile from './screens/profile'
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -15,6 +16,7 @@ firebase.initializeApp(firebaseConfig)
 
 const RouteConfigs = {
   Login: { screen: Login },
+  Profile: { screen: Profile },
 }
 
 const StackNavigatorConfig = {
