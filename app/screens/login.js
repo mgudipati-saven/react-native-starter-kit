@@ -1,3 +1,4 @@
+import Expo from 'expo'
 import React, { Component } from 'react'
 import { View, StyleSheet, ActivityIndicator, SafeAreaView } from 'react-native'
 import { Button, Icon, Text } from 'native-base'
@@ -51,12 +52,49 @@ export default class Login extends Component {
     showSpinner: false,
   }
 
-  googleLogin = () => {
-    console.log('googleLogin')
+  googleLogin = async () => {
+    const IOS_CLIENT_ID = '919524104425-t8edm6bn9ovn735iu169u67j07fnvi0u.apps.googleusercontent.com'
+    const ANDROID_CLIENT_ID =
+      '919524104425-193njd3n48vt5dss6oaejd0lml686gp4.apps.googleusercontent.com'
+
+    try {
+      const result = await Expo.Google.logInAsync({
+        androidClientId: ANDROID_CLIENT_ID,
+        iosClientId: IOS_CLIENT_ID,
+        scopes: ['profile', 'email'],
+      })
+
+      if (result.type === 'success') {
+        console.log(result.accessToken)
+        const response = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+          headers: { Authorization: `Bearer ${result.accessToken}` },
+        })
+
+        console.log(await response.json())
+      } else {
+        console.log({ cancelled: true })
+      }
+    } catch (e) {
+      console.log({ error: true })
+    }
   }
 
-  fbLogin = () => {
-    console.log('fbLogin')
+  fbLogin = async () => {
+    // this.setState({ showSpinner: true })
+    const APP_ID = '246347972570206'
+    const options = {
+      permissions: ['public_profile', 'user_birthday', 'user_work_history', 'email'],
+    }
+    const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(APP_ID, options)
+    if (type === 'success') {
+      console.log(token)
+      // const fields = ['id', 'first_name', 'last_name', 'gender', 'birthday', 'work']
+      // const response = await fetch(`https://graph.facebook.com/me?fields=${fields.toString()}&access_token=${token}`)
+      const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`)
+      console.log(await response.json())
+    } else {
+      console.log(type)
+    }
   }
 
   render() {
