@@ -52,10 +52,9 @@ const styles = StyleSheet.create({
 
 export default class Login extends Component {
   state = {
-    showSpinner: false,
+    showSpinner: true,
   }
 
-  /*
   componentDidMount() {
     // firebase.auth().signOut()
     firebase.auth().onAuthStateChanged((auth) => {
@@ -72,7 +71,7 @@ export default class Login extends Component {
         this.setState({ showSpinner: false })
       }
     })
-  } */
+  }
 
   showProfile = (user) => {
     const resetAction = NavigationActions.reset({
@@ -83,7 +82,7 @@ export default class Login extends Component {
   }
 
   googleLogin = async () => {
-    // this.setState({ showSpinner: true })
+    this.setState({ showSpinner: true })
 
     // google auth
     try {
@@ -102,8 +101,6 @@ export default class Login extends Component {
         const { data } = await axios.get('https://www.googleapis.com/userinfo/v2/me', {
           headers: { Authorization: `Bearer ${accessToken}` },
         })
-
-        console.log(data)
 
         // firebase auth
         const credential = firebase.auth.GoogleAuthProvider.credential(null, accessToken)
@@ -151,6 +148,8 @@ export default class Login extends Component {
         // create firebase user
         const defaults = {
           uid,
+          name: `${data.first_name} ${data.last_name}`,
+          picture: `https://graph.facebook.com/${data.id}/picture`,
         }
         firebase
           .database()

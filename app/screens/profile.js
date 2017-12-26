@@ -27,17 +27,13 @@ export default class Profile extends Component {
   }
 
   render() {
-    const { first_name, work, id } = this.state.user
-    const bio = work && work[0] && work[0].position ? work[0].position.name : null
-    const imageSize = PixelRatio.getPixelSizeForLayoutSize(size)
-    const fbImage = `https://graph.facebook.com/${id}/picture?height=${imageSize}`
+    const { name, picture } = this.state.user
 
     return (
       <View style={styles.container}>
         <View style={styles.profile}>
-          <Thumbnail style={styles.thumbnail} large source={{ uri: fbImage }} />
-          <Text style={{ fontSize: 20 }}>{first_name}</Text>
-          <Text style={{ fontSize: 15, color: 'darkgrey' }}>{bio}</Text>
+          <Thumbnail style={styles.thumbnail} large source={{ uri: picture }} />
+          <Text style={{ fontSize: 20 }}>{name}</Text>
         </View>
       </View>
     )
