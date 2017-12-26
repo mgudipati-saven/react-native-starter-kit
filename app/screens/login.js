@@ -52,9 +52,10 @@ const styles = StyleSheet.create({
 
 export default class Login extends Component {
   state = {
-    showSpinner: true,
+    showSpinner: false,
   }
 
+  /*
   componentDidMount() {
     // firebase.auth().signOut()
     firebase.auth().onAuthStateChanged((auth) => {
@@ -71,7 +72,7 @@ export default class Login extends Component {
         this.setState({ showSpinner: false })
       }
     })
-  }
+  } */
 
   showProfile = (user) => {
     const resetAction = NavigationActions.reset({
@@ -82,29 +83,46 @@ export default class Login extends Component {
   }
 
   googleLogin = async () => {
-    const IOS_CLIENT_ID = '919524104425-t8edm6bn9ovn735iu169u67j07fnvi0u.apps.googleusercontent.com'
-    const ANDROID_CLIENT_ID =
-      '919524104425-193njd3n48vt5dss6oaejd0lml686gp4.apps.googleusercontent.com'
+    // this.setState({ showSpinner: true })
 
+    // google auth
     try {
-      const result = await Expo.Google.logInAsync({
+      const IOS_CLIENT_ID =
+        '439520587796-2d8g33spn1vo3epc5vvuebtc67rrcb08.apps.googleusercontent.com'
+      const ANDROID_CLIENT_ID =
+        '439520587796-9aq5ovif0o1471h3m67lu1oa2qiuacco.apps.googleusercontent.com'
+
+      const { type, accessToken } = await Expo.Google.logInAsync({
         androidClientId: ANDROID_CLIENT_ID,
         iosClientId: IOS_CLIENT_ID,
         scopes: ['profile', 'email'],
       })
 
-      if (result.type === 'success') {
-        console.log(result.accessToken)
-        const response = await fetch('https://www.googleapis.com/userinfo/v2/me', {
-          headers: { Authorization: `Bearer ${result.accessToken}` },
+      if (type === 'success') {
+        const { data } = await axios.get('https://www.googleapis.com/userinfo/v2/me', {
+          headers: { Authorization: `Bearer ${accessToken}` },
         })
 
-        console.log(await response.json())
+        console.log(data)
+
+        // firebase auth
+        const credential = firebase.auth.GoogleAuthProvider.credential(null, accessToken)
+        const { uid } = await firebase.auth().signInWithCredential(credential)
+
+        // create firebase user
+        const defaults = {
+          uid,
+        }
+        firebase
+          .database()
+          .ref('users')
+          .child(uid)
+          .update({ ...data, ...defaults })
       } else {
         console.log({ cancelled: true })
       }
-    } catch (e) {
-      console.log({ error: true })
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -140,7 +158,7 @@ export default class Login extends Component {
           .child(uid)
           .update({ ...data, ...defaults })
       } else {
-        console.log('cancelled')
+        console.log({ cancelled: true })
       }
     } catch (error) {
       console.log(error)
