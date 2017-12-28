@@ -1,10 +1,9 @@
 import React from 'react'
-import { StackNavigator } from 'react-navigation'
 import * as firebase from 'firebase'
 import { Provider } from 'react-redux'
 
-import Login from './screens/login'
-import Profile from './screens/profile'
+import Navigator from './config/routes'
+
 import store from './config/store'
 
 // Initialize Firebase
@@ -18,23 +17,8 @@ const firebaseConfig = {
 }
 firebase.initializeApp(firebaseConfig)
 
-const RootNavigator = StackNavigator(
-  {
-    Login: {
-      screen: Login,
-    },
-    Profile: {
-      screen: Profile,
-    },
-  },
-  {
-    mode: 'modal',
-    headerMode: 'none',
-  },
-)
-
 export default () => (
   <Provider store={store}>
-    <RootNavigator />
+    <Navigator />
   </Provider>
 )

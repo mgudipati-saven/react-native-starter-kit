@@ -57,6 +57,7 @@ const styles = StyleSheet.create({
 class Login extends Component {
   static propTypes = {
     dispatch: PropTypes.func,
+    navigation: PropTypes.object,
   }
 
   state = {
@@ -83,11 +84,7 @@ class Login extends Component {
 
   goHome = (user) => {
     this.props.dispatch(setUser(user))
-    const resetAction = NavigationActions.reset({
-      index: 0,
-      actions: [NavigationActions.navigate({ routeName: 'Profile' })],
-    })
-    this.props.navigation.dispatch(resetAction)
+    this.props.navigation.navigate('Profile')
   }
 
   googleLogin = async () => {
