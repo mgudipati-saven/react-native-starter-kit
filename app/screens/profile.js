@@ -45,7 +45,7 @@ class Profile extends Component {
           <Avatar xlarge rounded source={{ uri: picture }} />
           <Text style={{ fontSize: 20 }}>{name}</Text>
         </View>
-        <Button large full rounded danger onPress={this.onLogoutPress}>
+        <Button style={{ margin: 10 }} large full rounded danger onPress={this.onLogoutPress}>
           <H1>Logout</H1>
         </Button>
       </SafeAreaView>

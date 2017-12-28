@@ -83,7 +83,7 @@ class Login extends Component {
 
   goHome = (user) => {
     this.props.dispatch(setUser(user))
-    this.props.navigation.navigate('Profile')
+    this.props.navigation.navigate('Primary')
   }
 
   cancelAuth = () => {
@@ -128,7 +128,6 @@ class Login extends Component {
         this.cancelAuth()
       }
     } catch (error) {
-      console.log(error)
       this.cancelAuth()
     }
   }
@@ -167,10 +166,10 @@ class Login extends Component {
           .child(uid)
           .update({ ...data, ...defaults })
       } else {
-        console.log({ cancelled: true })
+        this.cancelAuth()
       }
     } catch (error) {
-      console.log(error)
+      this.cancelAuth()
     }
   }
 
