@@ -5,6 +5,10 @@ import { Button, Icon, Text } from 'native-base'
 import axios from 'axios'
 import firebase from 'firebase'
 import { NavigationActions } from 'react-navigation'
+import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+
+import { setUser } from '../actions/user'
 
 const styles = StyleSheet.create({
   container: {
@@ -50,7 +54,11 @@ const styles = StyleSheet.create({
   },
 })
 
-export default class Login extends Component {
+class Login extends Component {
+  static propTypes = {
+    dispatch: PropTypes.func,
+  }
+
   state = {
     showSpinner: true,
   }
@@ -64,7 +72,7 @@ export default class Login extends Component {
           const user = snap.val()
           if (user != null) {
             this.firebaseRef.child(auth.uid).off('value')
-            this.showProfile(user)
+            this.goHome(user)
           }
         })
       } else {
@@ -73,10 +81,11 @@ export default class Login extends Component {
     })
   }
 
-  showProfile = (user) => {
+  goHome = (user) => {
+    this.props.dispatch(setUser(user))
     const resetAction = NavigationActions.reset({
       index: 0,
-      actions: [NavigationActions.navigate({ routeName: 'Profile', params: { user } })],
+      actions: [NavigationActions.navigate({ routeName: 'Profile' })],
     })
     this.props.navigation.dispatch(resetAction)
   }
@@ -203,3 +212,5 @@ export default class Login extends Component {
     )
   }
 }
+
+export default connect()(Login)

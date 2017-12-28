@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { StyleSheet, View, Text, PixelRatio } from 'react-native'
-import { Thumbnail } from 'native-base'
+import { Avatar } from 'react-native-elements'
+import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
 
 const size = 120
 
@@ -21,21 +23,27 @@ const styles = StyleSheet.create({
   },
 })
 
-export default class Profile extends Component {
-  state = {
-    user: this.props.navigation.state.params.user,
+class Profile extends Component {
+  static propTypes = {
+    user: PropTypes.object,
   }
 
   render() {
-    const { name, picture } = this.state.user
+    const { name, picture } = this.props.user
 
     return (
       <View style={styles.container}>
         <View style={styles.profile}>
-          <Thumbnail style={styles.thumbnail} large source={{ uri: picture }} />
+          <Avatar xlarge rounded source={{ uri: picture }} />
           <Text style={{ fontSize: 20 }}>{name}</Text>
         </View>
       </View>
     )
   }
 }
+
+const mapStateToProps = state => ({
+  user: state.user.user,
+})
+
+export default connect(mapStateToProps)(Profile)
