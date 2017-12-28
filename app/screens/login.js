@@ -4,7 +4,6 @@ import { View, StyleSheet, ActivityIndicator, SafeAreaView } from 'react-native'
 import { Button, Icon, Text } from 'native-base'
 import axios from 'axios'
 import firebase from 'firebase'
-import { NavigationActions } from 'react-navigation'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
@@ -65,7 +64,6 @@ class Login extends Component {
   }
 
   componentDidMount() {
-    // firebase.auth().signOut()
     firebase.auth().onAuthStateChanged((auth) => {
       if (auth) {
         this.firebaseRef = firebase.database().ref('users')
@@ -78,6 +76,7 @@ class Login extends Component {
         })
       } else {
         this.setState({ showSpinner: false })
+        this.props.dispatch(setUser({}))
       }
     })
   }
@@ -85,6 +84,10 @@ class Login extends Component {
   goHome = (user) => {
     this.props.dispatch(setUser(user))
     this.props.navigation.navigate('Profile')
+  }
+
+  cancelAuth = () => {
+    this.props.navigation.navigate('Login')
   }
 
   googleLogin = async () => {
@@ -122,10 +125,11 @@ class Login extends Component {
           .child(uid)
           .update({ ...data, ...defaults })
       } else {
-        console.log({ cancelled: true })
+        this.cancelAuth()
       }
     } catch (error) {
       console.log(error)
+      this.cancelAuth()
     }
   }
 
