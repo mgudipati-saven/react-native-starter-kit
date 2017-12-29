@@ -6,6 +6,7 @@ import axios from 'axios'
 import firebase from 'firebase'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
+import { connectAlert } from '../components/Alert'
 
 import { setUser } from '../actions/user'
 
@@ -57,6 +58,7 @@ class Login extends Component {
   static propTypes = {
     dispatch: PropTypes.func,
     navigation: PropTypes.object,
+    alertWithType: PropTypes.func,
   }
 
   state = {
@@ -87,6 +89,12 @@ class Login extends Component {
   }
 
   cancelAuth = () => {
+    this.props.alertWithType('info', 'Cancelled!', 'User cancelled authentication.')
+    this.props.navigation.navigate('Login')
+  }
+
+  errorAuth = (error) => {
+    this.props.alertWithType('error', 'Sorry!', error.message)
     this.props.navigation.navigate('Login')
   }
 
@@ -128,7 +136,7 @@ class Login extends Component {
         this.cancelAuth()
       }
     } catch (error) {
-      this.cancelAuth()
+      this.errorAuth(error)
     }
   }
 
@@ -169,7 +177,7 @@ class Login extends Component {
         this.cancelAuth()
       }
     } catch (error) {
-      this.cancelAuth()
+      this.errorAuth(error)
     }
   }
 
@@ -213,4 +221,4 @@ class Login extends Component {
   }
 }
 
-export default connect()(Login)
+export default connect()(connectAlert(Login))
