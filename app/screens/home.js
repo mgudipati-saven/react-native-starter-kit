@@ -1,24 +1,12 @@
 import Expo from 'expo'
 import React, { Component } from 'react'
-import { FlatList } from 'react-native'
+import { View, FlatList } from 'react-native'
 import PropTypes from 'prop-types'
 import firebase from 'firebase'
 import GeoFire from 'geofire'
 import { connect } from 'react-redux'
-import {
-  Container,
-  Content,
-  Header,
-  Title,
-  Left,
-  Icon,
-  Right,
-  Button,
-  Body,
-  Text,
-  Thumbnail,
-} from 'native-base'
-import { List, ListItem } from 'react-native-elements'
+import { Container, Header, Title, Left, Icon, Right, Button, Body } from 'native-base'
+import { List, ListItem, SearchBar } from 'react-native-elements'
 
 import { setProfiles } from '../actions/user'
 
@@ -62,14 +50,30 @@ class Home extends Component {
 
   renderItem = ({ item }) => (
     <ListItem
-      roundAvatar
-      hideChevron
-      avatar={{ uri: item.picture }}
       key={item.id}
+      roundAvatar
+      avatar={{ uri: item.picture }}
       title={item.name}
+      titleStyle={{ fontSize: 18 }}
       subtitle={item.email}
+      subtitleStyle={{ fontSize: 12, color: 'darkgrey' }}
+      containerStyle={{ borderBottomWidth: 0 }}
     />
   )
+
+  renderSeparator = () => (
+    <View
+      style={{
+        height: 1,
+        width: '75%',
+        backgroundColor: 'lightgrey',
+        marginLeft: '15%',
+        marginRight: '10%',
+      }}
+    />
+  )
+
+  renderHeader = () => <SearchBar placeholder="Search..." lightTheme round />
 
   render() {
     return (
@@ -85,10 +89,12 @@ class Home extends Component {
           </Body>
           <Right />
         </Header>
-        <List containerStyle={{ marginTop: 0 }}>
+        <List containerStyle={{ marginTop: 0, borderTopWidth: 0, borderBottomWidth: 0 }}>
           <FlatList
             data={this.props.profiles}
             renderItem={this.renderItem}
+            ItemSeparatorComponent={this.renderSeparator}
+            ListHeaderComponent={this.renderHeader}
             keyExtractor={item => item.id}
           />
         </List>
